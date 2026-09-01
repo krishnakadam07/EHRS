@@ -1,24 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiMaximize, FiUsers, FiFileText, FiClock, FiActivity, FiEdit3, FiShield, FiCpu } from 'react-icons/fi';
 import useAuth from '../../hooks/useAuth';
 import { ROUTES } from '../../routes/routeConstants';
 import PageHeader from '../../components/common/PageHeader';
-import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 
 export default function DoctorDashboard() {
     const { currentUser } = useAuth();
     const navigate = useNavigate();
 
+    // 🌟 REAL-TIME STATE
+    const [stats, setStats] = useState({
+        scansToday: 0,
+        activePatients: 0,
+        prescriptions: 0,
+        loading: true
+    });
+
+    // 🌟 FETCH REAL-TIME DATA FROM SPRING BOOT
+    useEffect(() => {
+        if (!currentUser?.email) return;
+
+        const fetchRealTimeStats = async () => {
+            try {
+                // Connect to the DoctorController endpoints we built
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
+
+                // Fetch both logs and prescriptions simultaneously for speed
+                const [logsRes, rxRes] = await Promise.all([
+                    fetch(`http://localhost:8081/api/doctors/access-logs/${currentUser.email}`, { headers }),
+                    fetch(`http://localhost:8081/api/doctors/history/${currentUser.email}`, { headers })
+                ]);
+
+                const logs = logsRes.ok ? await logsRes.json() : [];
+                const prescriptions = rxRes.ok ? await rxRes.json() : [];
+
+                // 1. Calculate Scans Today (matching today's date in the timestamp)
+                const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                const todayScans = logs.filter(log => log.timestamp && log.timestamp.includes(today)).length;
+
+                // 2. Calculate Active Patients (Count unique patient names in the access logs)
+                const uniquePatients = new Set(logs.map(log => log.patient).filter(p => p !== 'Unknown')).size;
+
+                setStats({
+                    scansToday: todayScans,
+                    activePatients: uniquePatients,
+                    prescriptions: prescriptions.length,
+                    loading: false
+                });
+
+            } catch (error) {
+                console.error("Failed to fetch real-time dashboard stats:", error);
+                setStats(s => ({ ...s, loading: false }));
+            }
+        };
+
+        fetchRealTimeStats();
+    }, [currentUser]);
+
     const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
     const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
-
-    const recentScans = [
-        { id: 'SCN-101', patient: 'Jane Doe', time: '10 mins ago', status: 'Emergency Access' },
-        { id: 'SCN-102', patient: 'Robert Smith', time: '2 hours ago', status: 'Routine Checkup' }
-    ];
 
     return (
         <div className="flex flex-col gap-6 pb-12">
@@ -44,11 +91,26 @@ export default function DoctorDashboard() {
                     </div>
                 </motion.div>
 
-                {/* Metric Cards */}
+                {/* 🌟 REAL-TIME METRIC CARDS */}
                 <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <MetricCard title="Total Scans Today" value="12" subtitle="+3 from yesterday" icon={<FiActivity />} color="text-emerald-500" bgColor="bg-emerald-500/10" />
-                    <MetricCard title="Active Patients" value="148" subtitle="Verified identities" icon={<FiUsers />} color="text-primary" bgColor="bg-primary/10" />
-                    <MetricCard title="Prescriptions" value="85" subtitle="This month" icon={<FiFileText />} color="text-orange-500" bgColor="bg-orange-500/10" />
+                    <MetricCard
+                        title="Total Scans Today"
+                        value={stats.loading ? "..." : stats.scansToday}
+                        subtitle="Real-time blockchain logs"
+                        icon={<FiActivity />} color="text-emerald-500" bgColor="bg-emerald-500/10"
+                    />
+                    <MetricCard
+                        title="Active Patients"
+                        value={stats.loading ? "..." : stats.activePatients}
+                        subtitle="Unique patients scanned"
+                        icon={<FiUsers />} color="text-primary" bgColor="bg-primary/10"
+                    />
+                    <MetricCard
+                        title="Prescriptions Issued"
+                        value={stats.loading ? "..." : stats.prescriptions}
+                        subtitle="Total secured on record"
+                        icon={<FiFileText />} color="text-orange-500" bgColor="bg-orange-500/10"
+                    />
                 </motion.div>
 
                 {/* Security Notice */}

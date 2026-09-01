@@ -51,6 +51,27 @@ export default function AddPrescription() {
         }
     };
 
+    // 🌟 SECURITY GUARD: Block access if the doctor didn't scan a QR Code!
+    if (!patientId) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                    className="w-24 h-24 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6 shadow-xl border border-red-200"
+                >
+                    <FiAlertCircle className="w-12 h-12" />
+                </motion.div>
+                <h2 className="text-3xl font-black text-slate-800 mb-2">Access Denied</h2>
+                <p className="text-slate-500 font-medium mb-8 max-w-md">
+                    You can only issue prescriptions by securely scanning a patient's medical QR code first. Manual entry is restricted for security.
+                </p>
+                <Button variant="primary" onClick={() => navigate(ROUTES.DOCTOR.DASHBOARD)}>
+                    Return to Dashboard
+                </Button>
+            </div>
+        );
+    }
+
     if (isSuccess) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
@@ -87,7 +108,7 @@ export default function AddPrescription() {
                             <div className="flex items-center justify-between pb-6 border-b border-slate-100">
                                 <div className="flex flex-col gap-1">
                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Issuing To</span>
-                                    <span className="text-lg font-black text-slate-800">Patient ID: {patientId || "Unknown"}</span>
+                                    <span className="text-lg font-black text-slate-800">Patient ID: {patientId}</span>
                                 </div>
                                 <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                                     <FiEdit3 className="w-6 h-6" />

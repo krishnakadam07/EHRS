@@ -14,7 +14,6 @@ export const authService = {
   login: async (credentials) => {
     const response = await api.post('/api/auth/login', credentials);
     if (response.data.token) {
-      // 🌟 Fixed: Saving token as 'ehr_token' so api.js can find it!
       localStorage.setItem('ehr_token', response.data.token);
       localStorage.setItem('userEmail', credentials.email);
       localStorage.setItem('userRole', credentials.role || 'patient');
@@ -28,7 +27,6 @@ export const authService = {
   },
 
   logout: () => {
-    // 🌟 Fixed: Removing 'ehr_token'
     localStorage.removeItem('ehr_token');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
@@ -36,7 +34,6 @@ export const authService = {
 
   getCurrentUser: () => {
     const email = localStorage.getItem('userEmail');
-    // 🌟 Fixed: Getting 'ehr_token'
     const token = localStorage.getItem('ehr_token');
     const role = localStorage.getItem('userRole') || 'patient';
 
@@ -44,5 +41,27 @@ export const authService = {
       return { email: email, role: role };
     }
     return null;
+  },
+
+  // 🌟 OTP METHODS
+  sendOtp: async (email) => {
+    try {
+      const response = await api.post('/api/auth/send-otp', { email });
+      localStorage.setItem('reset_email', email); // Remember email for verification step
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || "Failed to send OTP";
+    }
+  },
+
+  verifyOtp: async (otp) => {
+    try {
+      const email = localStorage.getItem('reset_email');
+      const response = await api.post('/api/auth/verify-otp', { email, otp });
+      localStorage.removeItem('reset_email'); // Clean up securely
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || "Invalid or Expired OTP";
+    }
   }
 };

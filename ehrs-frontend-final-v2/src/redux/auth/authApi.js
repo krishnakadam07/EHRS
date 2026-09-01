@@ -18,3 +18,20 @@ export const registerUser = createAsyncThunk('auth/register', async (userData, t
     return thunkAPI.rejectWithValue(error.response?.data || "Registration failed");
   }
 });
+
+// 🌟 ADDED OTP THUNKS BELOW
+export const requestOtp = createAsyncThunk('auth/requestOtp', async (email, thunkAPI) => {
+  try {
+    return await authService.sendOtp(email);
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error);
+  }
+});
+
+export const verifyOtp = createAsyncThunk('auth/verifyOtp', async (otp, thunkAPI) => {
+  try {
+    return await authService.verifyOtp(otp);
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error);
+  }
+});

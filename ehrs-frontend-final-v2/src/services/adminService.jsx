@@ -41,6 +41,10 @@ export const adminService = {
         const response = await api.get('/api/admin/analytics');
         return response.data;
     },
+    getFraudReports: async () => {
+        const response = await api.get('/api/admin/fraud-reports');
+        return response.data;
+    },
 
     // 🌟 NEW: Suspend Doctor
     suspendDoctor: async (doctorId) => {

@@ -27,6 +27,26 @@ public class AuthController {
     private UserRepository userRepository;
 
 
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
+        try {
+            authService.requestOtp(request.get("email"));
+            return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
+        try {
+            authService.verifyOtp(request.get("email"), request.get("otp"));
+            return ResponseEntity.ok(Map.of("message", "OTP verified successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");

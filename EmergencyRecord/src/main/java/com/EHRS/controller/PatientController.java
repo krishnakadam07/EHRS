@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -29,6 +30,28 @@ public class PatientController {
     @Autowired
     private com.EHRS.repository.MedicalRecordRepository medicalRecordRepository;
 
+    // 🌟 ADD THIS inside PatientController:
+    @Autowired
+    private com.EHRS.repository.NotificationRepository notificationRepository;
+
+    @PostMapping("/report-doctor")
+    public ResponseEntity<?> reportSuspiciousActivity(@RequestBody Map<String, String> payload) {
+        String patientEmail = payload.get("patientEmail");
+        String doctorName = payload.get("doctorName");
+        String reason = payload.get("reason");
+
+        // Create a high-priority alert for the Admin
+        com.EHRS.entity.Notification adminAlert = new com.EHRS.entity.Notification();
+        adminAlert.setPatient(null); // It goes to Admin, not a patient
+        adminAlert.setType("FRAUD_ALERT");
+        adminAlert.setTitle("🚨 URGENT: Doctor Reported by " + patientEmail);
+        adminAlert.setMessage("Doctor: " + doctorName + " | Reason/Proof: " + reason);
+        adminAlert.setTime(java.time.LocalDateTime.now().toString());
+
+        notificationRepository.save(adminAlert);
+
+        return ResponseEntity.ok(Map.of("message", "Report securely sent to Admin Investigation Team."));
+    }
     @GetMapping("/my-records/{email}")
     public ResponseEntity<?> getMyMedicalRecords(@PathVariable String email) {
         try {
@@ -45,8 +68,10 @@ public class PatientController {
             // Securely grab the patient using your existing service
             Patient patient = patientService.getPatientProfile(email);
 
-            // Find prescriptions using the patient's ID
-            List<Prescription> prescriptions = prescriptionRepository.findByPatientId(String.valueOf(patient.getId()));
+            // 🌟 FIX: Search for "PT-[ID]" because the doctor's QR scanner saves it with the PT- prefix!
+            String searchId = "PT-" + patient.getId();
+
+            List<Prescription> prescriptions = prescriptionRepository.findByPatientId(searchId);
             return ResponseEntity.ok(prescriptions);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -86,5 +111,22 @@ public class PatientController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+
+    // 🌟 DELETE S3 DOCUMENT
+    @DeleteMapping("/records/{id}")
+    public ResponseEntity<?> deleteMedicalRecord(@PathVariable Long id) {
+        medicalRecordRepository.deleteById(id);
+        return ResponseEntity.ok(Map.of("message", "Document deleted successfully"));
+    }
+
+    // 🌟 DELETE PRESCRIPTION
+    @DeleteMapping("/prescriptions/{id}")
+    public ResponseEntity<?> deletePrescription(@PathVariable Long id) {
+        // Warning: In a real medical app, patients cannot delete doctor prescriptions,
+        // but we are enabling it here for your project feature!
+        prescriptionRepository.deleteById(id);
+        return ResponseEntity.ok(Map.of("message", "Prescription deleted successfully"));
     }
 }

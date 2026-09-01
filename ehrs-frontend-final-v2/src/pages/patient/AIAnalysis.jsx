@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUploadCloud, FiCpu, FiFileText, FiCheckCircle, FiAlertCircle, FiX, FiActivity, FiZap } from 'react-icons/fi';
+import { MdDirectionsRun, MdRestaurantMenu } from 'react-icons/md';
 import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/common/Button';
 
@@ -28,32 +29,130 @@ export default function AIAnalysis() {
     }
   };
 
-  const handleAnalyze = () => {
+  // 🌟 ULTIMATE SERVER-HOPPING AI
+  const handleAnalyze = async () => {
     if (!selectedFile) return;
     setIsAnalyzing(true);
     setResult(null);
 
-    // Simulate Deep Learning processing delay
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      setResult({
-        diagnosis: "Mild Iron Deficiency Anemia",
-        summary: "Your blood report indicates slightly lower than normal hemoglobin levels and low ferritin. This suggests a mild iron deficiency.",
-        recommendations: [
-          "Increase intake of iron-rich foods (spinach, red meat, lentils).",
-          "Consider a Vitamin C supplement to boost iron absorption.",
-          "Consult with your primary care physician to discuss a potential iron supplement."
-        ],
-        confidence: "94.2%"
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) throw new Error("API Key is missing from your .env file!");
+
+      const base64Image = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(selectedFile);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = () => reject(new Error("Failed to read the file."));
       });
-    }, 3500);
+
+      const promptText = `
+        You are an expert holistic medical AI. Analyze this lab report image. Extract key findings but do NOT prescribe medicine. 
+        Return ONLY a valid JSON object matching this exact structure: 
+        { 
+          "diagnosis": "String (Primary Finding)", 
+          "summary": "String (What the report means in plain english)", 
+          "dietPlan": ["String", "String", "String"], 
+          "physicalPlan": ["String", "String", "String"], 
+          "confidence": "String (e.g. 96%)" 
+        }
+        Do NOT include markdown formatting or backticks, just the raw JSON.
+      `;
+
+      const payload = {
+        contents: [{
+          parts: [
+            { text: promptText },
+            { inline_data: { mime_type: selectedFile.type, data: base64Image } }
+          ]
+        }]
+      };
+
+      // 1. Get all available models from Google
+      const modelCheck = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const modelList = await modelCheck.json();
+
+      if (modelList.error) throw new Error("Google rejected your API key: " + modelList.error.message);
+
+      const availableModels = modelList.models.map(m => m.name);
+
+      // 2. Rank the best Vision models in order of preference
+      const preferredOrder = [
+        "models/gemini-flash-latest",
+        "models/gemini-3.7-flash",
+        "models/gemini-3.6-flash",
+        "models/gemini-3.5-flash",
+        "models/gemini-2.5-flash",
+        "models/gemini-2.5-pro"
+      ];
+
+      // 3. Filter down to the models your key actually possesses
+      let modelsToTry = preferredOrder.filter(model => availableModels.includes(model));
+
+      if (modelsToTry.length === 0) {
+        const backups = availableModels.filter(m => m.includes("flash") || m.includes("vision"));
+        if (backups.length > 0) modelsToTry.push(...backups);
+        else throw new Error("No compatible models found.");
+      }
+
+      console.log("🚀 SERVER-HOPPING ROUTE:", modelsToTry);
+
+      let data = null;
+      let success = false;
+      let lastError = null;
+
+      // 4. Try models one by one until one succeeds!
+      for (const model of modelsToTry) {
+        const cleanModelName = model.replace("models/", "");
+        console.log(`Trying ${cleanModelName}...`);
+
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cleanModelName}:generateContent?key=${apiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          data = await response.json();
+
+          // If successful, break the loop!
+          if (!data.error) {
+            console.log(`✅ Success with ${cleanModelName}!`);
+            success = true;
+            break;
+          } else {
+            console.warn(`Model ${cleanModelName} failed:`, data.error.message);
+            lastError = data.error.message;
+          }
+        } catch (e) {
+          console.warn(`Network error on ${cleanModelName}:`, e.message);
+          lastError = e.message;
+        }
+      }
+
+      if (!success) {
+        throw new Error(lastError || "All AI servers are currently overloaded. Please try again in 5 minutes.");
+      }
+
+      let textResponse = data.candidates[0].content.parts[0].text;
+      textResponse = textResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+      const jsonResult = JSON.parse(textResponse);
+      setResult(jsonResult);
+
+    } catch (error) {
+      console.error("AI Crash Details:", error);
+      alert("AI Analysis Failed: " + error.message);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
       <div className="flex flex-col gap-8 max-w-6xl mx-auto pb-12">
         <PageHeader
-            title="AI Lab Report Analyzer"
-            subtitle="Upload your lab results to receive an AI-generated, easy-to-understand summary and diagnosis."
+            title="AI Holistic Triage"
+            subtitle="Upload your lab results to receive a personalized diet and physical recovery plan without medical prescriptions."
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4">
@@ -75,7 +174,7 @@ export default function AIAnalysis() {
                               'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 cursor-pointer'
                   }`}
               >
-                <input type="file" accept=".pdf,image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
+                <input type="file" accept="image/*,.pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" />
 
                 <AnimatePresence mode="wait">
                   {selectedFile ? (
@@ -94,7 +193,7 @@ export default function AIAnalysis() {
                           <FiUploadCloud className="w-8 h-8" />
                         </div>
                         <span className="text-lg font-black text-slate-800">Drag & Drop Report</span>
-                        <span className="text-sm font-bold text-slate-500 mt-1">PDF, JPG, PNG up to 10MB</span>
+                        <span className="text-sm font-bold text-slate-500 mt-1">Images (JPG, PNG) or small PDFs</span>
                       </motion.div>
                   )}
                 </AnimatePresence>
@@ -107,7 +206,7 @@ export default function AIAnalysis() {
                 {isAnalyzing ? (
                     <span className="flex items-center justify-center gap-2"><FiCpu className="animate-spin" /> Neural Network Processing...</span>
                 ) : (
-                    <span className="flex items-center justify-center gap-2"><FiZap className="text-yellow-300" /> Run AI Analysis</span>
+                    <span className="flex items-center justify-center gap-2"><FiZap className="text-yellow-300" /> Run AI Triage</span>
                 )}
               </Button>
             </div>
@@ -120,7 +219,7 @@ export default function AIAnalysis() {
               <div className="p-6 md:p-8 border-b border-slate-100 bg-slate-50 flex items-center justify-between relative z-10">
                 <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
                   <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600"><FiCpu className="w-5 h-5" /></div>
-                  Diagnostic Insights
+                  Holistic Recovery Protocol
                 </h3>
                 {result && (
                     <div className="flex flex-col items-end">
@@ -138,11 +237,11 @@ export default function AIAnalysis() {
                       <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }} className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center opacity-60">
                         <FiActivity className="w-20 h-20 text-slate-200 mb-6" />
                         <h3 className="text-xl font-black text-slate-800 mb-2">Ready for Analysis</h3>
-                        <p className="text-slate-500 font-medium max-w-sm">Upload a medical report and our diagnostic model will extract key biomarkers instantly.</p>
+                        <p className="text-slate-500 font-medium max-w-sm">Upload a medical report image and our model will extract key biomarkers instantly.</p>
                       </motion.div>
                   )}
 
-                  {/* STATE: ANALYZING (SCANNER ANIMATION) */}
+                  {/* STATE: ANALYZING */}
                   {isAnalyzing && (
                       <motion.div key="analyzing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center bg-slate-900 z-20 overflow-hidden">
                         <motion.div animate={{ y: [-100, 100, -100] }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="absolute w-full h-1 bg-sky-400 shadow-[0_0_20px_10px_rgba(56,189,248,0.4)]" />
@@ -150,7 +249,7 @@ export default function AIAnalysis() {
                           <FiCpu className="w-10 h-10 text-sky-400" />
                         </div>
                         <h3 className="text-2xl font-black text-white mb-2 tracking-widest uppercase">Analyzing Data</h3>
-                        <p className="text-sky-400/80 font-bold text-sm tracking-wider animate-pulse">Running diagnostic models...</p>
+                        <p className="text-sky-400/80 font-bold text-sm tracking-wider animate-pulse">Running Gemini Vision diagnostics...</p>
                       </motion.div>
                   )}
 
@@ -170,12 +269,26 @@ export default function AIAnalysis() {
                           </p>
                         </div>
 
+                        {/* DIET PLAN */}
                         <div className="flex flex-col gap-4">
-                          <span className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><FiCheckCircle /> Actionable Recommendations</span>
+                          <span className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><MdRestaurantMenu className="text-lg text-emerald-500" /> Recommended Dietary Protocol</span>
                           <div className="flex flex-col gap-3">
-                            {result.recommendations.map((rec, idx) => (
-                                <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + (idx * 0.1) }} className="flex items-start gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all group">
-                                  <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-black shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">{idx + 1}</div>
+                            {result.dietPlan.map((rec, idx) => (
+                                <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + (idx * 0.1) }} className="flex items-start gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group">
+                                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-black shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">{idx + 1}</div>
+                                  <span className="text-slate-700 font-bold mt-1 leading-snug">{rec}</span>
+                                </motion.div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* PHYSICAL PLAN */}
+                        <div className="flex flex-col gap-4">
+                          <span className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><MdDirectionsRun className="text-lg text-orange-500" /> Recommended Physical Conditioning</span>
+                          <div className="flex flex-col gap-3">
+                            {result.physicalPlan.map((rec, idx) => (
+                                <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + (idx * 0.1) }} className="flex items-start gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-orange-200 hover:shadow-md transition-all group">
+                                  <div className="w-8 h-8 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-black shrink-0 group-hover:bg-orange-600 group-hover:text-white transition-colors">{idx + 1}</div>
                                   <span className="text-slate-700 font-bold mt-1 leading-snug">{rec}</span>
                                 </motion.div>
                             ))}
@@ -185,7 +298,7 @@ export default function AIAnalysis() {
                         <div className="mt-auto pt-6 border-t border-slate-100">
                           <div className="flex items-start gap-3 text-orange-600 bg-orange-50/50 border border-orange-100 p-4 rounded-xl text-xs font-bold leading-relaxed">
                             <FiAlertCircle className="w-5 h-5 shrink-0" />
-                            <p>This is an AI-generated analysis intended for informational purposes only. Do not use this as a substitute for professional medical advice, diagnosis, or treatment.</p>
+                            <p>This is an AI-generated analysis intended for holistic recovery purposes only. It does NOT prescribe medicine. Consult your physician before starting any diet or exercise regimen.</p>
                           </div>
                         </div>
                       </motion.div>

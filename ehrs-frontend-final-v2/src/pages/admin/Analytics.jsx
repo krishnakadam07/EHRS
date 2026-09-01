@@ -7,7 +7,6 @@ import {
 } from 'recharts';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
-import { adminService } from '../../services/adminService';
 
 const COLORS = ['#0ea5e9', '#10b981', '#f97316'];
 
@@ -18,10 +17,34 @@ export default function Analytics() {
         activity: []
     });
 
+    // 🌟 REAL-TIME FETCH WITH LIVE POLLING
     useEffect(() => {
-        adminService.getAnalytics()
-            .then(setData)
-            .catch(console.error);
+        const fetchLiveAnalytics = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                // Connect directly to the Spring Boot endpoint
+                const response = await fetch('http://localhost:8081/api/admin/analytics', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const realData = await response.json();
+                    setData(realData);
+                }
+            } catch (error) {
+                console.error("Failed to connect to backend for analytics", error);
+            }
+        };
+
+        // 1. Fetch immediately on component mount
+        fetchLiveAnalytics();
+
+        // 2. Set up a silent polling engine to fetch live data every 10 seconds!
+        // (If a new user registers, the charts will update automatically)
+        const intervalId = setInterval(fetchLiveAnalytics, 10000);
+
+        // 3. Cleanup interval when the admin leaves the page
+        return () => clearInterval(intervalId);
     }, []);
 
     const containerVariants = {

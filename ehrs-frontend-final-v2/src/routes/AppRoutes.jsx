@@ -15,8 +15,6 @@ const Register = lazy(() => import('../pages/auth/Register'));
 const ForgotPassword = lazy(() => import('../pages/auth/ForgotPassword'));
 const VerifyOtp = lazy(() => import('../pages/auth/VerifyOtp'));
 
-
-
 // Lazy load Patient Pages
 const PatientDashboard = lazy(() => import('../pages/patient/PatientDashboard'));
 const Profile = lazy(() => import('../pages/patient/Profile'));
@@ -29,6 +27,7 @@ const Notifications = lazy(() => import('../pages/patient/Notifications'));
 const AIAnalysis = lazy(() => import('../pages/patient/AIAnalysis'));
 const BloodBankFinder = lazy(() => import('../pages/patient/BloodBankFinder'));
 const NearbyHospitals = lazy(() => import('../pages/patient/NearbyHospitals'));
+const Settings = lazy(() => import('../pages/patient/Settings'));
 
 // Lazy load Doctor Pages
 const DoctorDashboard = lazy(() => import('../pages/doctor/DoctorDashboard'));
@@ -39,6 +38,7 @@ const MedicalHistory = lazy(() => import('../pages/doctor/MedicalHistory'));
 const AccessLogs = lazy(() => import('../pages/doctor/AccessLogs'));
 const DoctorProfile = lazy(() => import('../pages/doctor/DoctorProfile'));
 const AITriage = lazy(() => import('../pages/doctor/AITriage'));
+const DoctorNotifications = lazy(() => import('../pages/doctor/DoctorNotifications'));
 
 // Lazy load Admin Pages
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
@@ -47,8 +47,7 @@ const ManageDoctors = lazy(() => import('../pages/admin/ManageDoctors'));
 const VerifyDoctors = lazy(() => import('../pages/admin/VerifyDoctors'));
 const Analytics = lazy(() => import('../pages/admin/Analytics'));
 const SystemLogs = lazy(() => import('../pages/admin/SystemLogs'));
-const AdminProfile = lazy(() => import('../pages/admin/AdminProfile'));
-const Settings = lazy(() => import("../pages/admin/Settings"));
+const AdminNotifications = lazy(() => import('../pages/admin/AdminNotifications')); // 🌟 ADDED ADMIN NOTIFICATIONS
 
 // Lazy load Emergency & Misc Pages
 const EmergencyView = lazy(() => import('../pages/emergency/EmergencyView'));
@@ -88,8 +87,8 @@ export default function AppRoutes() {
               <Route path={ROUTES.PATIENT.NOTIFICATIONS} element={<Notifications />} />
               <Route path={ROUTES.PATIENT.BLOOD_BANK} element={<BloodBankFinder />} />
               <Route path={ROUTES.PATIENT.HOSPITALS} element={<NearbyHospitals />} />
-              <Route path={ROUTES.PATIENT.AI_ANALYSIS} element={<AIAnalysis />} />
               <Route path={ROUTES.PATIENT.SETTINGS} element={<Settings />} />
+              <Route path={ROUTES.PATIENT.AI_ANALYSIS} element={<AIAnalysis />} />
             </Route>
           </Route>
 
@@ -104,9 +103,7 @@ export default function AppRoutes() {
               <Route path={ROUTES.DOCTOR.LOGS} element={<AccessLogs />} />
               <Route path={ROUTES.DOCTOR.PROFILE} element={<DoctorProfile />} />
               <Route path={ROUTES.DOCTOR.AI_TRIAGE} element={<AITriage />} />
-
-              {/* 🌟 NEW: Doctor Settings Route */}
-              <Route path={ROUTES.DOCTOR.SETTINGS} element={<Settings />} />
+              <Route path={ROUTES.DOCTOR.NOTIFICATIONS} element={<DoctorNotifications />} />
             </Route>
           </Route>
 
@@ -119,10 +116,7 @@ export default function AppRoutes() {
               <Route path={ROUTES.ADMIN.VERIFY_DOCTORS} element={<VerifyDoctors />} />
               <Route path={ROUTES.ADMIN.ANALYTICS} element={<Analytics />} />
               <Route path={ROUTES.ADMIN.LOGS} element={<SystemLogs />} />
-              <Route path={ROUTES.ADMIN.PROFILE} element={<AdminProfile />} />
-
-              {/* 🌟 NEW: Admin Settings Route */}
-              <Route path={ROUTES.ADMIN.SETTINGS} element={<Settings />} />
+              <Route path={ROUTES.ADMIN.NOTIFICATIONS} element={<AdminNotifications />} /> {/* 🌟 ADDED ADMIN NOTIFICATIONS */}
             </Route>
           </Route>
 

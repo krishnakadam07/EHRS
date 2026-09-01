@@ -9,4 +9,6 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, Long> {
 
     List<AccessLog> findByPatient(Patient patient);
     List<AccessLog> findByAccessor(String accessor);
+    // Finds the last log to chain the hash!
+    AccessLog findTopByOrderByIdDesc();
 }

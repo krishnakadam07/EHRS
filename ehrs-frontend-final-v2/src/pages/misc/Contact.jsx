@@ -36,7 +36,7 @@ export default function Contact() {
           <FiArrowLeft /> Back to Home
         </motion.button>
         <motion.div whileHover={{ scale: 1.05 }} className="font-black text-slate-800 text-xl tracking-tight cursor-default">
-           EHRS<span className="text-primary">.</span>
+           Emergency Health Record System<span className="text-primary">.</span>
         </motion.div>
       </motion.nav>
 

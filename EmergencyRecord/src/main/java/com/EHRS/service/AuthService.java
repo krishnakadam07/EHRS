@@ -29,6 +29,32 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private EmailService emailService;
+
+    // Temporary in-memory secure storage for OTPs
+    private final java.util.Map<String, String> otpStorage = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public void requestOtp(String email) {
+        if (!userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email not found in our system.");
+        }
+        // Generate a real 6-digit random code
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+
+        otpStorage.put(email, otp);
+        emailService.sendOtpEmail(email, otp); // 🔥 Sends the actual email!
+    }
+
+    public void verifyOtp(String email, String otp) {
+        String storedOtp = otpStorage.get(email);
+        if (storedOtp == null || !storedOtp.equals(otp)) {
+            throw new RuntimeException("Invalid or expired OTP code.");
+        }
+        // Success! Remove it so it can't be reused by hackers.
+        otpStorage.remove(email);
+    }
+
     public String loginUser(LoginRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isPresent()) {

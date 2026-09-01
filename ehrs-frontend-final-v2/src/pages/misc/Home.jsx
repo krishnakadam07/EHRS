@@ -36,7 +36,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-white/20 blur-sm scale-150 rotate-45 group-hover:translate-x-full transition-transform duration-700"></div>
                   <FiActivity className="w-6 h-6 relative z-10" />
                </div>
-               <span className="text-xl font-black text-slate-800 tracking-tight">EHRS<span className="text-primary">.</span></span>
+               <span className="text-xl font-black text-slate-800 tracking-tight">Emergency Health Record System<span className="text-primary">.</span></span>
             </motion.div>
             
             <div className="hidden md:flex items-center gap-8 font-bold text-sm text-slate-600">

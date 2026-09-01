@@ -19,4 +19,16 @@ export const patientService = {
     const response = await api.get(`/api/patients/my-records/${email}`);
     return response.data;
   },
+  reportDoctor: async (payload) => {
+    const response = await api.post(`/api/patients/report-doctor`, payload);
+    return response.data;
+  },
+  deleteMedicalRecord: async (id) => {
+    const response = await api.delete(`/api/patients/records/${id}`);
+    return response.data;
+  },
+  deletePrescription: async (id) => {
+    const response = await api.delete(`/api/patients/prescriptions/${id}`);
+    return response.data;
+  },
 };

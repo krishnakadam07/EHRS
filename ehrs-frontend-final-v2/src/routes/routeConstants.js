@@ -35,7 +35,7 @@ export const ROUTES = {
     LOGS: '/doctor/logs',
     PROFILE: '/doctor/profile',
     AI_TRIAGE: '/doctor/ai-triage',
-    SETTINGS: '/doctor/settings'
+    NOTIFICATIONS: '/doctor/notifications'
   },
   ADMIN: {
     DASHBOARD: '/admin',
@@ -44,7 +44,6 @@ export const ROUTES = {
     VERIFY_DOCTORS: '/admin/verify-doctors',
     ANALYTICS: '/admin/analytics',
     LOGS: '/admin/logs',
-    PROFILE: '/admin/profile',
-    SETTINGS: '/admin/settings' // NEW PROFILE ROUTE
+    NOTIFICATIONS: '/admin/notifications'
   }
 };
