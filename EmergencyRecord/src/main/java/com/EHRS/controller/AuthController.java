@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+<<<<<<< HEAD
 import java.util.Collections;
 
 // Google Auth Imports
@@ -24,6 +25,13 @@ import com.google.api.client.json.gson.GsonFactory;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+=======
+
+@RestController
+@RequestMapping("/api/auth")
+
+public class AuthController {
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -33,6 +41,10 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
         try {
@@ -81,7 +93,11 @@ public class AuthController {
             // Your AuthService already checks the password, role, and if the doctor is verified!
             String jwtToken = authService.loginUser(request);
 
+<<<<<<< HEAD
             // Fetch the user to return their role to React
+=======
+            // We just need to fetch the user to return their role to React
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
             Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
@@ -95,6 +111,10 @@ public class AuthController {
             return ResponseEntity.status(401).body("User not found after login");
 
         } catch (Exception e) {
+<<<<<<< HEAD
+=======
+            // If the doctor is not verified, AuthService throws an exception which we catch here
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
             if (e.getMessage() != null && e.getMessage().contains("pending")) {
                 return ResponseEntity.status(403).body(e.getMessage());
             }
@@ -111,6 +131,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+<<<<<<< HEAD
 
     // -------------------------------------------------------------------
     // GOOGLE AUTHENTICATION ENDPOINT
@@ -160,4 +181,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 }

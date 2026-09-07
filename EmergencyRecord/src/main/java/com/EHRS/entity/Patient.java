@@ -44,6 +44,9 @@ public class Patient {
             this.emergencyToken = UUID.randomUUID().toString();
         }
     }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 }

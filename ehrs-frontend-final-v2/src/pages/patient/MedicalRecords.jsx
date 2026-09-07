@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { FiFileText, FiTrash2, FiClipboard } from 'react-icons/fi';
+=======
+import { FiFileText, FiTrash2 } from 'react-icons/fi';
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 import jsPDF from 'jspdf';
 import PageHeader from '../../components/common/PageHeader';
 import Card from '../../components/common/Card';
@@ -33,6 +37,10 @@ export default function Records() {
         }
     }, [currentUser]);
 
+<<<<<<< HEAD
+=======
+    // 🌟 DELETE LOGIC
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     const handleDeletePrescription = async (id) => {
         if (window.confirm("Are you sure you want to delete this prescription?")) {
             try {
@@ -57,6 +65,7 @@ export default function Records() {
 
     const downloadPrescriptionPDF = (prescription) => {
         const doc = new jsPDF();
+<<<<<<< HEAD
 
         // 🌟 ADD HOSPITAL LOGO GRAPHIC TO PDF
         doc.setFillColor(14, 165, 233);
@@ -83,6 +92,26 @@ export default function Records() {
         doc.text(`Frequency: ${prescription.frequency}`, 20, 90);
         doc.text(`Duration: ${prescription.duration}`, 20, 100);
         doc.text(`Instructions: ${prescription.notes || 'Take as directed by your physician.'}`, 20, 120);
+=======
+        doc.setFontSize(22);
+        doc.setTextColor(14, 165, 233);
+        doc.text("EHRS Official Prescription", 20, 20);
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text(`Date Issued: ${prescription.dateIssued}`, 20, 30);
+        doc.text(`Doctor: ${prescription.doctorEmail}`, 20, 38);
+        doc.setLineWidth(0.5);
+        doc.line(20, 45, 190, 45);
+        doc.setFontSize(16);
+        doc.setTextColor(20);
+        doc.text("Medication Details", 20, 55);
+        doc.setFontSize(12);
+        doc.text(`Rx: ${prescription.medicationName}`, 20, 65);
+        doc.text(`Dosage: ${prescription.dosage}`, 20, 75);
+        doc.text(`Frequency: ${prescription.frequency}`, 20, 85);
+        doc.text(`Duration: ${prescription.duration}`, 20, 95);
+        doc.text(`Instructions: ${prescription.notes || 'Take as directed by your physician.'}`, 20, 115);
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
         doc.setFontSize(10);
         doc.setTextColor(150);
         doc.text("This is a cryptographically verified electronic document.", 20, 280);
@@ -114,6 +143,7 @@ export default function Records() {
             )},
     ];
 
+<<<<<<< HEAD
     // 🌟 SKELETON LOADER
     if (loading) return (
         <div className="flex flex-col gap-6 pb-12 max-w-6xl mx-auto animate-pulse">
@@ -121,6 +151,9 @@ export default function Records() {
             <div className="h-64 bg-slate-200 rounded-3xl w-full"></div>
         </div>
     );
+=======
+    if (loading) return <div className="p-8 text-center animate-pulse font-bold text-slate-400">Loading Medical Vault...</div>;
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
     return (
         <div className="flex flex-col gap-6 pb-12 max-w-6xl mx-auto">
@@ -138,6 +171,7 @@ export default function Records() {
                 </Card.Header>
                 <Card.Body noPadding>
                     {activeTab === 'Prescriptions' ? (
+<<<<<<< HEAD
                         // 🌟 EMPTY STATE GRAPHIC
                         prescriptions.length === 0 ? (
                             <div className="flex flex-col items-center justify-center p-16 text-center">
@@ -155,6 +189,11 @@ export default function Records() {
                                 <p className="text-sm text-slate-500 mt-1 max-w-xs">You have not uploaded any external medical records to the AWS S3 vault.</p>
                             </div>
                         ) : <DataTable columns={s3Columns} data={s3Records} keyExtractor={(item) => item.id} />
+=======
+                        <DataTable columns={rxColumns} data={prescriptions} keyExtractor={(item) => item.id} />
+                    ) : (
+                        <DataTable columns={s3Columns} data={s3Records} keyExtractor={(item) => item.id} />
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
                     )}
                 </Card.Body>
             </Card>

@@ -20,6 +20,10 @@ export default function Profile() {
     }
   });
 
+<<<<<<< HEAD
+=======
+  // 🌟 FETCH FROM BACKEND: Properly maps backend Patient.java fields
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
   useEffect(() => {
     if (currentUser?.email) {
       patientService.getProfile(currentUser.email)
@@ -34,6 +38,10 @@ export default function Profile() {
               weight: data.weight || '',
               allergies: data.allergies || '',
               chronicConditions: data.chronicConditions || '',
+<<<<<<< HEAD
+=======
+              // These aren't in Patient.java yet, but kept for UI
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
               gender: data.gender || '',
               emergencyContactName: data.emergencyContacts?.[0]?.name || '',
               emergencyContactRelation: data.emergencyContacts?.[0]?.relation || '',
@@ -47,11 +55,16 @@ export default function Profile() {
     }
   }, [currentUser, reset]);
 
+<<<<<<< HEAD
   // 🌟 PERFECTLY MAPPED TO SPRING BOOT DTO
+=======
+  // 🌟 SEND TO BACKEND: Perfectly formats data to match Spring Boot Patient entity
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
   const onSubmit = async (data) => {
     setLoading(true);
 
     const profileData = {
+<<<<<<< HEAD
       name: data.name,
       phone: data.phone,
       dob: data.dob,
@@ -73,6 +86,18 @@ export default function Profile() {
           phone: data.emergencyContactPhone
         }
       ]
+=======
+      fullName: data.name,
+      phoneNumber: data.phone,
+      dateOfBirth: data.dob,
+      bloodType: data.bloodGroup,
+      // Ensure height/weight are Numbers (Double) for Java, not Strings like "5'10"
+      height: data.height ? parseFloat(data.height) : null,
+      weight: data.weight ? parseFloat(data.weight) : null,
+      // Java expects Strings for these, NOT arrays!
+      allergies: data.allergies,
+      chronicConditions: data.chronicConditions
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     };
 
     try {

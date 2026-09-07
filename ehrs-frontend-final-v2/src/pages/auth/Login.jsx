@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+<<<<<<< HEAD
 import { FiMail, FiLock, FiActivity, FiArrowRight, FiShield, FiZap, FiCheckCircle } from 'react-icons/fi';
+=======
+import { FiMail, FiLock, FiActivity, FiArrowRight, FiShield } from 'react-icons/fi';
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 import { motion, AnimatePresence } from 'framer-motion';
 import useAuth from '../../hooks/useAuth';
 import { ROUTES } from '../../routes/routeConstants';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+<<<<<<< HEAD
 import { GoogleLogin } from '@react-oauth/google';
 import api from '../../utils/api';
 
@@ -17,6 +22,15 @@ export default function Login() {
   const [activeTab, setActiveTab] = useState('patient');
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+=======
+
+export default function Login() {
+  const navigate = useNavigate();
+  const { login, isAuthenticated, currentUser, loading, error, clearStates } = useAuth();
+  const [activeTab, setActiveTab] = useState('patient');
+
+  const { register, handleSubmit, formState: { errors } } = useForm({
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     defaultValues: { email: '', password: '' }
   });
 
@@ -24,6 +38,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated && currentUser) {
+<<<<<<< HEAD
       toast.success(`Logged in as ${currentUser.name || 'User'}`);
 
       // 🌟 PERFECT ROUTING FOR ALL THREE ROLES
@@ -36,12 +51,24 @@ export default function Login() {
       }
     }
   }, [isAuthenticated, currentUser, navigate, logout]);
+=======
+      toast.success(`Logged in as ${currentUser.email}`);
+      const role = currentUser.role?.toLowerCase() || 'patient';
+
+      // Dynamic routing based on role
+      if (role === 'admin') navigate(ROUTES.ADMIN.DASHBOARD);
+      else if (role === 'doctor') navigate(ROUTES.DOCTOR.DASHBOARD);
+      else navigate(ROUTES.PATIENT.DASHBOARD);
+    }
+  }, [isAuthenticated, currentUser, navigate]);
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
   useEffect(() => {
     if (error) { toast.error(error); clearStates(); }
   }, [error, clearStates]);
 
   const onSubmit = async (data) => {
+<<<<<<< HEAD
     const success = await login(data.email, data.password, activeTab);
     if (success) clearStates();
   };
@@ -51,6 +78,9 @@ export default function Login() {
     setValue('email', email);
     setValue('password', pass);
     setActiveTab(role);
+=======
+    await login(data.email, data.password, activeTab);
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
   };
 
   const formVariants = { hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } }, exit: { opacity: 0, x: 20, transition: { duration: 0.2 } } };
@@ -98,6 +128,7 @@ export default function Login() {
                 <motion.form key={activeTab} variants={formVariants} initial="hidden" animate="visible" exit="exit" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
                   <Input label="Email Address" type="email" icon={<FiMail />} placeholder="you@example.com" error={errors.email?.message} {...register("email", { required: "Email is required" })} />
                   <div>
+<<<<<<< HEAD
                     <div className="flex flex-col gap-1.5">
                       <div className="flex justify-between items-center mb-[-0.375rem] z-10 relative px-1">
                         <span />
@@ -107,6 +138,10 @@ export default function Login() {
                       </div>
                       <Input label="Password" type="password" icon={<FiLock />} placeholder="••••••••" error={errors.password?.message} {...register("password", { required: "Password is required" })} />
                     </div>
+=======
+                    <Input label="Password" type="password" icon={<FiLock />} placeholder="••••••••" error={errors.password?.message} {...register("password", { required: "Password is required" })} />
+                    <div className="flex justify-end mt-2"><Link to={ROUTES.AUTH.FORGOT_PASSWORD} className="text-sm font-bold text-blue-600 hover:text-blue-700">Forgot password?</Link></div>
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
                   </div>
                   <Button type="submit" variant="primary" size="lg" className="w-full mt-4 justify-center shadow-lg shadow-blue-600/20" isLoading={loading} rightIcon={<FiArrowRight />}>
                     Secure {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Login
@@ -114,6 +149,7 @@ export default function Login() {
                 </motion.form>
               </AnimatePresence>
             </div>
+<<<<<<< HEAD
 
             {/* Divider */}
             <div className="relative my-8">
@@ -209,12 +245,39 @@ export default function Login() {
                   <p className="text-slate-800 font-black">System Status</p>
                   <p className="text-emerald-500 font-bold text-sm">All Services Online</p>
                 </div>
+=======
+            <p className="text-slate-500 text-center text-sm font-semibold mt-8">Don't have an account?{' '}<Link to={ROUTES.AUTH.REGISTER} className="text-blue-600 hover:text-blue-700">Create one now</Link></p>
+          </motion.div>
+        </div>
+
+        {/* Right Panel */}
+        <div className="hidden lg:flex w-1/2 bg-slate-900 relative items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-blue-600/20 mix-blend-overlay"></div>
+
+          <div className="relative z-10 max-w-lg">
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 text-white shadow-2xl">
+              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6"><FiActivity className="w-6 h-6 text-blue-400" /></div>
+              <h2 className="text-3xl font-black mb-4 leading-tight tracking-tight">Your Health Data,<br/>Unified.</h2>
+              <p className="text-slate-300 font-medium mb-8 leading-relaxed">Consolidate your medical history, allergies, and emergency contacts into a single cryptographic QR token for immediate access by first responders.</p>
+
+              <div className="flex gap-4">
+                <div className="flex -space-x-4"><div className="w-10 h-10 rounded-full border-2 border-slate-800 bg-slate-200"></div><div className="w-10 h-10 rounded-full border-2 border-slate-800 bg-slate-300"></div><div className="w-10 h-10 rounded-full border-2 border-slate-800 bg-slate-400"></div></div>
+                <div className="flex flex-col justify-center"><span className="font-bold text-sm">5M+ Patients</span><span className="text-xs text-slate-400">Secured globally</span></div>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, type: 'spring' }} className="absolute -top-12 -right-12 bg-white rounded-2xl p-6 shadow-2xl rotate-[5deg]">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center"><FiShield className="w-6 h-6 text-blue-600" /></div>
+                <div><p className="text-slate-800 font-black">HIPAA Compliant</p><p className="text-slate-500 font-bold text-sm">Audited & Verified</p></div>
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
               </div>
             </motion.div>
           </div>
         </div>
       </div>
   );
+<<<<<<< HEAD
 }
 
 function DemoButton({ label, email, onClick }) {
@@ -244,4 +307,6 @@ function FeatureItem({ text }) {
         {text}
       </motion.li>
   );
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 }

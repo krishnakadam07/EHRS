@@ -3,7 +3,11 @@ export const ROUTES = {
     HOME: '/',
     ABOUT: '/about',
     CONTACT: '/contact',
+<<<<<<< HEAD
     EMERGENCY_VIEW: '/emergency',
+=======
+    EMERGENCY_VIEW: '/emergency-view',
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     NOT_FOUND: '/404'
   },
   AUTH: {
@@ -35,8 +39,12 @@ export const ROUTES = {
     LOGS: '/doctor/logs',
     PROFILE: '/doctor/profile',
     AI_TRIAGE: '/doctor/ai-triage',
+<<<<<<< HEAD
     NOTIFICATIONS: '/doctor/notifications',
     SETTINGS: '/doctor/settings'
+=======
+    NOTIFICATIONS: '/doctor/notifications'
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
   },
   ADMIN: {
     DASHBOARD: '/admin',
@@ -45,8 +53,12 @@ export const ROUTES = {
     VERIFY_DOCTORS: '/admin/verify-doctors',
     ANALYTICS: '/admin/analytics',
     LOGS: '/admin/logs',
+<<<<<<< HEAD
     NOTIFICATIONS: '/admin/notifications',
     PROFILE: '/admin/profile',
     SETTINGS: '/admin/settings'
+=======
+    NOTIFICATIONS: '/admin/notifications'
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
   }
 };

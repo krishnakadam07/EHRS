@@ -2,8 +2,12 @@ package com.EHRS.controller;
 
 import com.EHRS.entity.Patient;
 import com.EHRS.repository.PatientRepository;
+<<<<<<< HEAD
 import com.EHRS.service.SecurityAlertService;
 import lombok.RequiredArgsConstructor;
+=======
+import org.springframework.beans.factory.annotation.Autowired;
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/emergency")
+<<<<<<< HEAD
 @RequiredArgsConstructor
 public class EmergencyController {
 
@@ -20,6 +25,13 @@ public class EmergencyController {
 
     // 🌟 Inject the new Security Alert Service
     private final SecurityAlertService securityAlertService;
+=======
+
+public class EmergencyController {
+
+    @Autowired
+    private PatientRepository patientRepository;
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
     @GetMapping("/{token}")
     public ResponseEntity<?> getEmergencyProfileByToken(@PathVariable String token) {
@@ -29,6 +41,7 @@ public class EmergencyController {
         }
 
         Patient patient = patientOpt.get();
+<<<<<<< HEAD
 
         // 🚨 TRIGGER THE LIVE ALERT TO THE PATIENT'S PHONE!
         try {
@@ -39,6 +52,8 @@ public class EmergencyController {
             System.out.println("Could not send alert, but continuing data fetch.");
         }
 
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
         Map<String, Object> criticalData = new HashMap<>();
         criticalData.put("fullName", patient.getFullName());
         criticalData.put("bloodType", patient.getBloodType());

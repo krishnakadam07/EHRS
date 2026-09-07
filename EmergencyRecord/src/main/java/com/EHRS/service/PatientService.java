@@ -34,18 +34,24 @@ public class PatientService {
         patient.setGender(request.getGender());
         patient.setBloodType(request.getBloodGroup());
 
+<<<<<<< HEAD
         // 🌟 ADDED HEIGHT & WEIGHT
         patient.setHeight(request.getHeight());
         patient.setWeight(request.getWeight());
 
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
         if (request.getAllergies() != null) {
             patient.setAllergies(String.join(", ", request.getAllergies()));
         }
 
+<<<<<<< HEAD
         if (request.getChronicConditions() != null) {
             patient.setChronicConditions(String.join(", ", request.getChronicConditions()));
         }
 
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
         if (request.getInsurance() != null) {
             patient.setInsuranceProvider(request.getInsurance().getProvider());
             patient.setInsurancePolicy(request.getInsurance().getPolicyNumber());

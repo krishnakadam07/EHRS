@@ -1,4 +1,5 @@
 import api from './api';
+<<<<<<< HEAD
 
 export const patientService = {
   getProfile: async (email) => { const response = await api.get(`/api/patients/dashboard/${email}`); return response.data; },
@@ -11,6 +12,16 @@ export const patientService = {
   getSettings: async (email) => { const response = await api.get(`/api/settings/${email}`); return response.data; },
   updateSettings: async (email, settingsData) => { const response = await api.put(`/api/settings/${email}`, settingsData); return response.data; },
 
+=======
+export const patientService = {
+  getProfile: async (email) => { const response = await api.get(`/api/patients/dashboard/${email}`); return response.data; },
+  updateProfile: async (email, profileData) => { const response = await api.put(`/api/patients/update/${email}`, profileData); return response.data; },
+  getAccessLogs: async (email) => { const response = await api.get(`/api/access-logs/${email}`); return response.data; },
+  getNotifications: async (email) => { const response = await api.get(`/api/notifications/${email}`); return response.data; },
+  markNotificationRead: async (id) => { const response = await api.put(`/api/notifications/read/${id}`); return response.data; },
+  getSettings: async (email) => { const response = await api.get(`/api/settings/${email}`); return response.data; },
+  updateSettings: async (email, settingsData) => { const response = await api.put(`/api/settings/${email}`, settingsData); return response.data; },
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
   getMyPrescriptions: async (email) => {
     const response = await api.get(`/api/patients/prescriptions/${email}`);
     return response.data;
@@ -35,6 +46,7 @@ export const patientService = {
     const response = await api.delete(`/api/patients/prescriptions/${id}`);
     return response.data;
   },
+<<<<<<< HEAD
 
   // 🌟 Clean Spring AI Endpoint
   analyzeMedicalReport: async (base64Image, mimeType) => {
@@ -51,4 +63,6 @@ export const patientService = {
     });
     return response.data;
   }
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 };

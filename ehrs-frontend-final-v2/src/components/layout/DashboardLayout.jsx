@@ -7,9 +7,12 @@ import Sidebar from './Sidebar';
 import MobileNavigation from './MobileNavigation';
 import Loader from '../common/Loader';
 
+<<<<<<< HEAD
 // 🌟 IMPORTED THE NEW ALERT COMPONENT
 import SecurityAlerts from '../common/SecurityAlerts';
 
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 export default function DashboardLayout() {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
@@ -36,6 +39,7 @@ export default function DashboardLayout() {
   };
 
   return (
+<<<<<<< HEAD
       <div className="flex h-screen bg-slate-50 overflow-hidden relative">
 
         {/* 🚨 SECURITY ALERTS LISTENER (Always running in the background) */}
@@ -77,3 +81,42 @@ export default function DashboardLayout() {
       </div>
   );
 }
+=======
+    <div className="flex h-screen bg-slate-50 overflow-hidden relative">
+      {/* Dynamic Background Mesh Gradient based on Topic */}
+      <div className={`absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${getTopicBackground()} transition-colors duration-1000 pointer-events-none opacity-80`} />
+      
+      {/* Premium Vercel/Linear Dot Pattern overlay */}
+      <div className="absolute inset-0 z-0 bg-dots-pattern pointer-events-none mix-blend-multiply opacity-50" />
+
+      <Sidebar isOpen={isSidebarOpen} />
+      
+      <MobileNavigation 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
+
+      <div className="flex-1 flex flex-col h-full relative z-10 w-full min-w-0">
+        <Navbar 
+          toggleSidebar={toggleSidebar} 
+          isSidebarOpen={isSidebarOpen}
+          onMobileMenuClick={() => setIsMobileMenuOpen(true)}
+        />
+        
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
+          <div className="max-w-7xl mx-auto w-full">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              <Outlet />
+            </motion.div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67

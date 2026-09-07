@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiBell, FiCheckCircle, FiShield, FiX, FiCheck } from 'react-icons/fi';
 import PageHeader from '../../components/common/PageHeader';
 import useAuth from '../../hooks/useAuth';
+<<<<<<< HEAD
 import { doctorService } from '../../services/doctorService';
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
 export default function DoctorNotifications() {
     const { currentUser } = useAuth();
@@ -15,10 +18,20 @@ export default function DoctorNotifications() {
 
         const fetchNotifications = async () => {
             try {
+<<<<<<< HEAD
                 // Fetch Real Logs and Profile to synthesize notifications using the official service
                 const [logs, profile] = await Promise.all([
                     doctorService.getMyAccessLogs(currentUser.email).catch(() => []),
                     doctorService.getDoctorProfile(currentUser.email).catch(() => null)
+=======
+                const token = localStorage.getItem('token');
+                const headers = { 'Authorization': `Bearer ${token}` };
+
+                // 🌟 Fetch Real Logs and Profile to synthesize notifications
+                const [logsRes, profileRes] = await Promise.all([
+                    fetch(`http://localhost:8081/api/doctors/access-logs/${currentUser.email}`, { headers }),
+                    fetch(`http://localhost:8081/api/doctors/profile/${currentUser.email}`, { headers })
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
                 ]);
 
                 const generatedNotifs = [];
@@ -38,7 +51,12 @@ export default function DoctorNotifications() {
                 });
 
                 // 2. Verification Status
+<<<<<<< HEAD
                 if (profile) {
+=======
+                if (profileRes.ok) {
+                    const profile = await profileRes.json();
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
                     if (profile.verified) {
                         generatedNotifs.push({
                             id: idCounter++,
@@ -55,7 +73,12 @@ export default function DoctorNotifications() {
                 }
 
                 // 3. Scan Activity Logs as Notifications
+<<<<<<< HEAD
                 if (logs && logs.length > 0) {
+=======
+                if (logsRes.ok) {
+                    const logs = await logsRes.json();
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
                     // Take the 3 most recent logs
                     logs.slice(0, 3).forEach(log => {
                         // Format the Spring Boot date to a readable string

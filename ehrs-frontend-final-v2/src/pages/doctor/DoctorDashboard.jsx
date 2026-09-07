@@ -6,7 +6,10 @@ import useAuth from '../../hooks/useAuth';
 import { ROUTES } from '../../routes/routeConstants';
 import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/common/Button';
+<<<<<<< HEAD
 import { doctorService } from '../../services/doctorService';
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
 export default function DoctorDashboard() {
     const { currentUser } = useAuth();
@@ -20,6 +23,7 @@ export default function DoctorDashboard() {
         loading: true
     });
 
+<<<<<<< HEAD
     const [doctorName, setDoctorName] = useState('Doctor');
 
     // Make the greeting dynamic based on time of day!
@@ -52,6 +56,29 @@ export default function DoctorDashboard() {
                     const capitalizedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
                     setDoctorName("Dr. " + capitalizedPrefix);
                 }
+=======
+    // 🌟 FETCH REAL-TIME DATA FROM SPRING BOOT
+    useEffect(() => {
+        if (!currentUser?.email) return;
+
+        const fetchRealTimeStats = async () => {
+            try {
+                // Connect to the DoctorController endpoints we built
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
+
+                // Fetch both logs and prescriptions simultaneously for speed
+                const [logsRes, rxRes] = await Promise.all([
+                    fetch(`http://localhost:8081/api/doctors/access-logs/${currentUser.email}`, { headers }),
+                    fetch(`http://localhost:8081/api/doctors/history/${currentUser.email}`, { headers })
+                ]);
+
+                const logs = logsRes.ok ? await logsRes.json() : [];
+                const prescriptions = rxRes.ok ? await rxRes.json() : [];
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
                 // 1. Calculate Scans Today (matching today's date in the timestamp)
                 const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
@@ -73,9 +100,13 @@ export default function DoctorDashboard() {
             }
         };
 
+<<<<<<< HEAD
         if (currentUser?.email) {
             fetchRealTimeStats();
         }
+=======
+        fetchRealTimeStats();
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
     }, [currentUser]);
 
     const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -83,11 +114,15 @@ export default function DoctorDashboard() {
 
     return (
         <div className="flex flex-col gap-6 pb-12">
+<<<<<<< HEAD
             {/* 🌟 FIX: Dynamic time-based greeting and real database name! */}
             <PageHeader
                 title={`${getGreeting()}, ${doctorName.startsWith('Dr.') ? doctorName : 'Dr. ' + doctorName}`}
                 subtitle="Manage your patients, scan medical IDs, and review access logs."
             />
+=======
+            <PageHeader title={`Welcome, Dr. ${currentUser?.name?.split(' ')[1] || 'Doctor'}`} subtitle="Manage your patients, scan medical IDs, and review access logs." />
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-6">
 
@@ -164,6 +199,7 @@ function MetricCard({ title, value, subtitle, icon, color, bgColor }) {
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col gap-3">
             <div className="flex justify-between items-start">
                 <span className="text-sm font-bold text-slate-500">{title}</span>
+<<<<<<< HEAD
                 <div className={`w-12 h-12 rounded-xl ${bgColor} ${color} flex items-center justify-center shrink-0`}>
                     {React.cloneElement(icon, { className: 'w-6 h-6' })}
                 </div>
@@ -175,9 +211,18 @@ function MetricCard({ title, value, subtitle, icon, color, bgColor }) {
                 ) : (
                     <span className="text-4xl font-black text-slate-800">{value}</span>
                 )}
+=======
+                <div className={`w-12 h-12 rounded-xl ${bgColor} ${color} flex items-center justify-center shrink-0`}>{React.cloneElement(icon, { className: 'w-6 h-6' })}</div>
+            </div>
+            <div className="flex flex-col mt-2">
+                <span className="text-4xl font-black text-slate-800">{value}</span>
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
                 <span className="text-xs font-semibold text-slate-400 mt-1">{subtitle}</span>
             </div>
         </div>
     );
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9b97f337fadfab789e1aa5c4f19d7d650499fe67
 }
