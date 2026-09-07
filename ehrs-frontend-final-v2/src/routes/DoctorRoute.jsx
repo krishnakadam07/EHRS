@@ -10,9 +10,12 @@ export default function DoctorRoute() {
     return <Navigate to={ROUTES.AUTH.LOGIN} replace />;
   }
 
-  if (currentUser?.role !== 'doctor') {
-    if (currentUser?.role === 'patient') return <Navigate to={ROUTES.PATIENT.DASHBOARD} replace />;
-    if (currentUser?.role === 'admin') return <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />;
+  // 🌟 FIX: Enforce lowercase validation
+  const role = currentUser?.role?.toLowerCase();
+
+  if (role !== 'doctor') {
+    if (role === 'patient') return <Navigate to={ROUTES.PATIENT.DASHBOARD} replace />;
+    if (role === 'admin') return <Navigate to={ROUTES.ADMIN.DASHBOARD} replace />;
     return <Navigate to={ROUTES.PUBLIC.HOME} replace />;
   }
 

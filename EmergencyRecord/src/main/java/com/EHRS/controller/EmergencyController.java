@@ -2,7 +2,8 @@ package com.EHRS.controller;
 
 import com.EHRS.entity.Patient;
 import com.EHRS.repository.PatientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.EHRS.service.SecurityAlertService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +13,13 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/emergency")
-
+@RequiredArgsConstructor
 public class EmergencyController {
 
-    @Autowired
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
+
+    // 🌟 Inject the new Security Alert Service
+    private final SecurityAlertService securityAlertService;
 
     @GetMapping("/{token}")
     public ResponseEntity<?> getEmergencyProfileByToken(@PathVariable String token) {
@@ -26,6 +29,16 @@ public class EmergencyController {
         }
 
         Patient patient = patientOpt.get();
+
+        // 🚨 TRIGGER THE LIVE ALERT TO THE PATIENT'S PHONE!
+        try {
+            // We get the patient's email to send it directly to their channel
+            String patientEmail = patient.getUser().getEmail();
+            securityAlertService.triggerEmergencyAccessAlert(patientEmail, "An Emergency Responder");
+        } catch (Exception e) {
+            System.out.println("Could not send alert, but continuing data fetch.");
+        }
+
         Map<String, Object> criticalData = new HashMap<>();
         criticalData.put("fullName", patient.getFullName());
         criticalData.put("bloodType", patient.getBloodType());

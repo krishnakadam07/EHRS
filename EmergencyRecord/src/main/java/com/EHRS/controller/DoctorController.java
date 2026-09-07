@@ -2,24 +2,33 @@ package com.EHRS.controller;
 
 import com.EHRS.entity.Patient;
 import com.EHRS.entity.Prescription;
-import com.EHRS.repository.DoctorRepository;
 import com.EHRS.repository.PatientRepository;
 import com.EHRS.repository.PrescriptionRepository;
+import com.EHRS.repository.DoctorRepository;
+import com.EHRS.repository.UserRepository;
+import com.EHRS.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/doctors")
+ // Allows React frontend to communicate with Backend
 public class DoctorController {
 
-    // 🌟 Email Service Injected
     @Autowired
-    private com.EHRS.service.EmailService emailService;
+    private com.EHRS.service.SmsService smsService;
 
     @Autowired
-    private com.EHRS.repository.UserRepository userRepository;
+    private EmailService emailService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private PatientRepository patientRepository;
@@ -82,28 +91,41 @@ public class DoctorController {
         return ResponseEntity.ok(prescriptions);
     }
 
+    // 🌟 FIX: Automatically creates a profile if it doesn't exist to prevent 404/500 crashes
     @GetMapping("/profile/{email}")
     public ResponseEntity<?> getDoctorProfile(@PathVariable String email) {
         com.EHRS.entity.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         com.EHRS.entity.Doctor doctor = doctorRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
-
+                .orElseGet(() -> {
+                    com.EHRS.entity.Doctor newDoc = new com.EHRS.entity.Doctor();
+                    newDoc.setUser(user);
+                    // 🌟 FIX: We extract the name from their Email prefix since User doesn't have a name!
+                    newDoc.setFullName("Dr. " + user.getEmail().split("@")[0]);
+                    newDoc.setSpecialty("General Practice");
+                    newDoc.setVerified(false);
+                    return doctorRepository.save(newDoc);
+                });
         return ResponseEntity.ok(doctor);
     }
 
+    // 🌟 FIX: Ensure updating works securely without crashing
     @PutMapping("/profile/{email}")
     public ResponseEntity<?> updateDoctorProfile(@PathVariable String email, @RequestBody com.EHRS.entity.Doctor updatedData) {
         com.EHRS.entity.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         com.EHRS.entity.Doctor doctor = doctorRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+                .orElseGet(() -> {
+                    com.EHRS.entity.Doctor newDoc = new com.EHRS.entity.Doctor();
+                    newDoc.setUser(user);
+                    return newDoc;
+                });
 
         if (updatedData.getFullName() != null) doctor.setFullName(updatedData.getFullName());
         if (updatedData.getHospitalAffiliation() != null) doctor.setHospitalAffiliation(updatedData.getHospitalAffiliation());
         if (updatedData.getLicenseNumber() != null) doctor.setLicenseNumber(updatedData.getLicenseNumber());
+        if (updatedData.getSpecialty() != null) doctor.setSpecialty(updatedData.getSpecialty());
 
         doctorRepository.save(doctor);
         return ResponseEntity.ok(doctor);
@@ -142,7 +164,7 @@ public class DoctorController {
         notif.setTime(java.time.LocalDateTime.now().toString());
         notificationRepository.save(notif);
 
-        // 🌟 3. FIRE REAL EMAIL ALERT TO PATIENT!
+        // 3. FIRE REAL EMAIL ALERT TO PATIENT!
         try {
             System.out.println("Attempting to send security email to: " + patient.getUser().getEmail());
             emailService.sendSecurityAlert(patient.getUser().getEmail(), accessorName);
@@ -151,8 +173,19 @@ public class DoctorController {
             System.out.println("Email failed to send. Check your application.properties! Error: " + e.getMessage());
         }
 
+        try {
+            if (patient.getPhoneNumber() != null && !patient.getPhoneNumber().isEmpty()) {
+                smsService.sendSecurityAlertSms(patient.getPhoneNumber(), accessorName);
+            }
+        } catch (Exception e) {
+            System.out.println("SMS failed to send. " + e.getMessage());
+        }
+
+
         return ResponseEntity.ok(patient);
     }
+
+
 
     @PostMapping("/prescribe")
     public ResponseEntity<?> issuePrescription(@RequestBody Prescription prescription) {
@@ -161,7 +194,7 @@ public class DoctorController {
 
         // 2. FIRE DATABASE NOTIFICATION TO PATIENT
         try {
-            // 🌟 FIX: Strip out "PT-" before converting to a Long ID so Java doesn't crash!
+            // FIX: Strip out "PT-" before converting to a Long ID so Java doesn't crash!
             String rawId = prescription.getPatientId().replace("PT-", "");
             Patient patient = patientRepository.findById(Long.parseLong(rawId)).orElse(null);
 

@@ -3,7 +3,7 @@ export const ROUTES = {
     HOME: '/',
     ABOUT: '/about',
     CONTACT: '/contact',
-    EMERGENCY_VIEW: '/emergency-view',
+    EMERGENCY_VIEW: '/emergency',
     NOT_FOUND: '/404'
   },
   AUTH: {
@@ -35,7 +35,8 @@ export const ROUTES = {
     LOGS: '/doctor/logs',
     PROFILE: '/doctor/profile',
     AI_TRIAGE: '/doctor/ai-triage',
-    NOTIFICATIONS: '/doctor/notifications'
+    NOTIFICATIONS: '/doctor/notifications',
+    SETTINGS: '/doctor/settings'
   },
   ADMIN: {
     DASHBOARD: '/admin',
@@ -44,6 +45,8 @@ export const ROUTES = {
     VERIFY_DOCTORS: '/admin/verify-doctors',
     ANALYTICS: '/admin/analytics',
     LOGS: '/admin/logs',
-    NOTIFICATIONS: '/admin/notifications'
+    NOTIFICATIONS: '/admin/notifications',
+    PROFILE: '/admin/profile',
+    SETTINGS: '/admin/settings'
   }
 };

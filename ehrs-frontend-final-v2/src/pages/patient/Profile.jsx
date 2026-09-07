@@ -20,7 +20,6 @@ export default function Profile() {
     }
   });
 
-  // 🌟 FETCH FROM BACKEND: Properly maps backend Patient.java fields
   useEffect(() => {
     if (currentUser?.email) {
       patientService.getProfile(currentUser.email)
@@ -35,7 +34,6 @@ export default function Profile() {
               weight: data.weight || '',
               allergies: data.allergies || '',
               chronicConditions: data.chronicConditions || '',
-              // These aren't in Patient.java yet, but kept for UI
               gender: data.gender || '',
               emergencyContactName: data.emergencyContacts?.[0]?.name || '',
               emergencyContactRelation: data.emergencyContacts?.[0]?.relation || '',
@@ -49,21 +47,32 @@ export default function Profile() {
     }
   }, [currentUser, reset]);
 
-  // 🌟 SEND TO BACKEND: Perfectly formats data to match Spring Boot Patient entity
+  // 🌟 PERFECTLY MAPPED TO SPRING BOOT DTO
   const onSubmit = async (data) => {
     setLoading(true);
 
     const profileData = {
-      fullName: data.name,
-      phoneNumber: data.phone,
-      dateOfBirth: data.dob,
-      bloodType: data.bloodGroup,
-      // Ensure height/weight are Numbers (Double) for Java, not Strings like "5'10"
-      height: data.height ? parseFloat(data.height) : null,
-      weight: data.weight ? parseFloat(data.weight) : null,
-      // Java expects Strings for these, NOT arrays!
-      allergies: data.allergies,
-      chronicConditions: data.chronicConditions
+      name: data.name,
+      phone: data.phone,
+      dob: data.dob,
+      gender: data.gender,
+      bloodGroup: data.bloodGroup,
+      height: data.height ? data.height.toString() : "",
+      weight: data.weight ? data.weight.toString() : "",
+      allergies: data.allergies ? data.allergies.split(',').map(s => s.trim()) : [],
+      chronicConditions: data.chronicConditions ? data.chronicConditions.split(',').map(s => s.trim()) : [],
+      insurance: {
+        provider: data.insuranceProvider,
+        policyNumber: data.insurancePolicy,
+        expiry: data.insuranceExpiry
+      },
+      emergencyContacts: [
+        {
+          name: data.emergencyContactName,
+          relation: data.emergencyContactRelation,
+          phone: data.emergencyContactPhone
+        }
+      ]
     };
 
     try {

@@ -7,6 +7,9 @@ import Sidebar from './Sidebar';
 import MobileNavigation from './MobileNavigation';
 import Loader from '../common/Loader';
 
+// 🌟 IMPORTED THE NEW ALERT COMPONENT
+import SecurityAlerts from '../common/SecurityAlerts';
+
 export default function DashboardLayout() {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
@@ -33,40 +36,44 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden relative">
-      {/* Dynamic Background Mesh Gradient based on Topic */}
-      <div className={`absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${getTopicBackground()} transition-colors duration-1000 pointer-events-none opacity-80`} />
-      
-      {/* Premium Vercel/Linear Dot Pattern overlay */}
-      <div className="absolute inset-0 z-0 bg-dots-pattern pointer-events-none mix-blend-multiply opacity-50" />
+      <div className="flex h-screen bg-slate-50 overflow-hidden relative">
 
-      <Sidebar isOpen={isSidebarOpen} />
-      
-      <MobileNavigation 
-        isOpen={isMobileMenuOpen} 
-        onClose={() => setIsMobileMenuOpen(false)} 
-      />
+        {/* 🚨 SECURITY ALERTS LISTENER (Always running in the background) */}
+        <SecurityAlerts />
 
-      <div className="flex-1 flex flex-col h-full relative z-10 w-full min-w-0">
-        <Navbar 
-          toggleSidebar={toggleSidebar} 
-          isSidebarOpen={isSidebarOpen}
-          onMobileMenuClick={() => setIsMobileMenuOpen(true)}
+        {/* Dynamic Background Mesh Gradient based on Topic */}
+        <div className={`absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${getTopicBackground()} transition-colors duration-1000 pointer-events-none opacity-80`} />
+
+        {/* Premium Vercel/Linear Dot Pattern overlay */}
+        <div className="absolute inset-0 z-0 bg-dots-pattern pointer-events-none mix-blend-multiply opacity-50" />
+
+        <Sidebar isOpen={isSidebarOpen} />
+
+        <MobileNavigation
+            isOpen={isMobileMenuOpen}
+            onClose={() => setIsMobileMenuOpen(false)}
         />
-        
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
-          <div className="max-w-7xl mx-auto w-full">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-            >
-              <Outlet />
-            </motion.div>
-          </div>
-        </main>
+
+        <div className="flex-1 flex flex-col h-full relative z-10 w-full min-w-0">
+          <Navbar
+              toggleSidebar={toggleSidebar}
+              isSidebarOpen={isSidebarOpen}
+              onMobileMenuClick={() => setIsMobileMenuOpen(true)}
+          />
+
+          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
+            <div className="max-w-7xl mx-auto w-full">
+              <motion.div
+                  key={location.pathname}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+              >
+                <Outlet />
+              </motion.div>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
   );
 }

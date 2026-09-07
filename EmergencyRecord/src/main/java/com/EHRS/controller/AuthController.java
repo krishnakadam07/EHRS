@@ -12,11 +12,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Collections;
+
+// Google Auth Imports
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 
 @RestController
 @RequestMapping("/api/auth")
-
 public class AuthController {
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -25,7 +32,6 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
-
 
     @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
@@ -75,7 +81,7 @@ public class AuthController {
             // Your AuthService already checks the password, role, and if the doctor is verified!
             String jwtToken = authService.loginUser(request);
 
-            // We just need to fetch the user to return their role to React
+            // Fetch the user to return their role to React
             Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
@@ -89,7 +95,6 @@ public class AuthController {
             return ResponseEntity.status(401).body("User not found after login");
 
         } catch (Exception e) {
-            // If the doctor is not verified, AuthService throws an exception which we catch here
             if (e.getMessage() != null && e.getMessage().contains("pending")) {
                 return ResponseEntity.status(403).body(e.getMessage());
             }
@@ -104,6 +109,55 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("message", "User registered successfully"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // -------------------------------------------------------------------
+    // GOOGLE AUTHENTICATION ENDPOINT
+    // -------------------------------------------------------------------
+    @PostMapping("/google")
+    public ResponseEntity<?> googleAuth(@RequestBody Map<String, String> request) {
+        String googleToken = request.get("token");
+        String requestedRole = request.get("role"); // Will be "patient" or "doctor" from the login tab
+
+        try {
+            // Verify the Google Token using your specific Client ID
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList("148865988355-1jhblpdtend7irsl5chfcca2gqic3umk.apps.googleusercontent.com"))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(googleToken);
+
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+
+                // Process login via AuthService
+                String jwtToken = authService.processGoogleLogin(email, name, requestedRole);
+
+                // Fetch user data to match the exact JSON structure of normal login
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                if (userOpt.isPresent()) {
+                    User user = userOpt.get();
+                    return ResponseEntity.ok(Map.of(
+                            "email", user.getEmail(),
+                            "role", user.getRole().name().toLowerCase(),
+                            "token", jwtToken,
+                            "message", "Google Auth Successful"
+                    ));
+                }
+
+                return ResponseEntity.status(401).body("User not found after Google login");
+            } else {
+                return ResponseEntity.badRequest().body("Invalid Google Token");
+            }
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("pending")) {
+                return ResponseEntity.status(403).body(e.getMessage());
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

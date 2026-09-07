@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { FiUploadCloud, FiFile, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiUploadCloud, FiFile, FiCheckCircle } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { recordService } from '../../services/recordService';
 import PageHeader from '../../components/common/PageHeader';
@@ -32,6 +32,8 @@ export default function UploadRecord() {
     if (!selectedFile) return toast.error("Please select a file to upload.");
 
     setIsUploading(true);
+
+    // 🌟 Pack all data into FormData so Spring Boot can parse the File AND the text!
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("title", data.title);
@@ -40,12 +42,16 @@ export default function UploadRecord() {
     formData.append("notes", data.notes || "");
 
     try {
-      await recordService.uploadRecord(currentUser.email, formData);
-      toast.success("Document uploaded securely to AWS S3!");
+      // 🌟 Calls our updated AWS S3 endpoint
+      const response = await recordService.uploadRecord(currentUser.email, formData);
+
+      toast.success(response.message || "Document uploaded securely to AWS S3!");
       reset();
       setSelectedFile(null);
+
     } catch (error) {
-      toast.error("Failed to upload document.");
+      console.error("Upload Error:", error);
+      toast.error(error.response?.data?.error || "Failed to upload document to S3.");
     } finally {
       setIsUploading(false);
     }

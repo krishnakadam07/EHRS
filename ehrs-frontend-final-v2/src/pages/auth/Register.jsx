@@ -9,7 +9,6 @@ import { ROUTES } from '../../routes/routeConstants';
 import MultiStepRegistration from './MultiStepRegistration';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
-import { GoogleLogin } from '@react-oauth/google';
 import api from '../../utils/api';
 
 export default function Register() {
@@ -38,16 +37,8 @@ export default function Register() {
         reset();
     };
 
-    // 🌟 FIX APPLIED HERE: Map frontend names to backend names!
     const handlePatientSubmit = async (data) => {
-        const mappedData = {
-            ...data,
-            dateOfBirth: data.dob,         // Maps 'dob' to 'dateOfBirth'
-            bloodType: data.bloodGroup,    // Maps 'bloodGroup' to 'bloodType'
-            role: 'patient'
-        };
-
-        const success = await registerApi(mappedData);
+        const success = await registerApi({ ...data, role: 'patient' });
         if (success) {
             // toast handled in wrapper
         }
@@ -205,53 +196,6 @@ export default function Register() {
                         )}
                     </div>
 
-
-                    <div className="relative my-8">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-slate-200"></div>
-                        </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white text-slate-500 font-bold uppercase tracking-widest text-xs">Or continue with</span>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center w-full">
-                        <GoogleLogin
-                            onSuccess={async (credentialResponse) => {
-                                try {
-                                    const response = await api.post('/auth/google', {
-                                        token: credentialResponse.credential,
-                                        role: selectedRole
-                                    });
-                                    const token = response.data.token;
-                                    localStorage.setItem('ehr_jwt_token', token);
-
-                                    // Decode JWT to get role and email
-                                    const payload = JSON.parse(atob(token.split('.')[1]));
-                                    const user = {
-                                        email: payload.sub,
-                                        role: payload.role.toLowerCase(),
-                                        name: 'Google User',
-                                        id: 'google-auth'
-                                    };
-                                    localStorage.setItem('ehr_current_user', JSON.stringify(user));
-
-                                    // Reload so Redux picks it up and routes correctly
-                                    window.location.reload();
-                                } catch (error) {
-                                    toast.error("Google Authentication Failed");
-                                }
-                            }}
-                            onError={() => {
-                                toast.error('Google Login Failed');
-                            }}
-                            useOneTap
-                            shape="pill"
-                            size="large"
-                            width="300px"
-                        />
-                    </div>
-
                     <p className="text-slate-500 text-center text-sm font-semibold mt-10">
                         Already have an account?{' '}
                         <Link to="/login" className="text-primary hover:text-sky-600 font-black transition-colors">
@@ -317,5 +261,16 @@ export default function Register() {
                 </div>
             </div>
         </div>
+    );
+}
+
+function FeatureItem({ text }) {
+    return (
+        <motion.li initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="flex items-center gap-3 text-slate-300 font-medium">
+            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <FiCheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+            </div>
+            {text}
+        </motion.li>
     );
 }

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTES } from './routeConstants';
 
@@ -24,10 +24,10 @@ const QRCodePage = lazy(() => import('../pages/patient/QRCodePage'));
 const EmergencyProfile = lazy(() => import('../pages/patient/EmergencyProfile'));
 const AccessHistory = lazy(() => import('../pages/patient/AccessHistory'));
 const Notifications = lazy(() => import('../pages/patient/Notifications'));
-const AIAnalysis = lazy(() => import('../pages/patient/AIAnalysis'));
 const BloodBankFinder = lazy(() => import('../pages/patient/BloodBankFinder'));
 const NearbyHospitals = lazy(() => import('../pages/patient/NearbyHospitals'));
 const Settings = lazy(() => import('../pages/patient/Settings'));
+const AIAnalysis = lazy(() => import('../pages/patient/AIAnalysis'));
 
 // Lazy load Doctor Pages
 const DoctorDashboard = lazy(() => import('../pages/doctor/DoctorDashboard'));
@@ -39,6 +39,7 @@ const AccessLogs = lazy(() => import('../pages/doctor/AccessLogs'));
 const DoctorProfile = lazy(() => import('../pages/doctor/DoctorProfile'));
 const AITriage = lazy(() => import('../pages/doctor/AITriage'));
 const DoctorNotifications = lazy(() => import('../pages/doctor/DoctorNotifications'));
+const DoctorSettings = lazy(() => import('../pages/doctor/DoctorSettings.jsx'));
 
 // Lazy load Admin Pages
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
@@ -47,7 +48,9 @@ const ManageDoctors = lazy(() => import('../pages/admin/ManageDoctors'));
 const VerifyDoctors = lazy(() => import('../pages/admin/VerifyDoctors'));
 const Analytics = lazy(() => import('../pages/admin/Analytics'));
 const SystemLogs = lazy(() => import('../pages/admin/SystemLogs'));
-const AdminNotifications = lazy(() => import('../pages/admin/AdminNotifications')); // 🌟 ADDED ADMIN NOTIFICATIONS
+const AdminProfile = lazy(() => import('../pages/admin/AdminProfile'));
+const AdminSettings = lazy(() => import('../pages/admin/AdminSettings'));
+const AdminNotifications = lazy(() => import('../pages/admin/AdminNotifications'));
 
 // Lazy load Emergency & Misc Pages
 const EmergencyView = lazy(() => import('../pages/emergency/EmergencyView'));
@@ -56,25 +59,42 @@ const About = lazy(() => import('../pages/misc/About'));
 const Contact = lazy(() => import('../pages/misc/Contact'));
 const NotFound = lazy(() => import('../pages/misc/NotFound'));
 
+// Add standard static pages
+const PrivacyPolicy = lazy(() => import('../pages/misc/PrivacyPolicy'));
+const DeveloperDetails = lazy(() => import('../pages/misc/DeveloperDetails'));
+const Documentation = lazy(() => import('../pages/misc/Documentation'));
+const SecurityWhitePaper = lazy(() => import('../pages/misc/SecurityWhitePaper'));
+const APIIntegrations = lazy(() => import('../pages/misc/APIIntegrations'));
+const SystemStatus = lazy(() => import('../pages/misc/SystemStatus'));
+const TermsOfService = lazy(() => import('../pages/misc/TermsOfService'));
+const HIPAACompliance = lazy(() => import('../pages/misc/HIPAACompliance'));
+const CookiePolicy = lazy(() => import('../pages/misc/CookiePolicy'));
+const Architecture = lazy(() => import('../pages/misc/Architecture'));
+
 export default function AppRoutes() {
   return (
       <Suspense fallback={<SuspenseLoader />}>
         <Routes>
-          {/* Public Routes */}
           <Route path={ROUTES.PUBLIC.HOME} element={<Home />} />
           <Route path={ROUTES.PUBLIC.ABOUT} element={<About />} />
           <Route path={ROUTES.PUBLIC.CONTACT} element={<Contact />} />
-
-          {/* Auth Routes */}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/developers" element={<DeveloperDetails />} />
+          <Route path="/documentation" element={<Documentation />} />
+          <Route path="/security-whitepaper" element={<SecurityWhitePaper />} />
+          <Route path="/api-integrations" element={<APIIntegrations />} />
+          <Route path="/status" element={<SystemStatus />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/hipaa" element={<HIPAACompliance />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/architecture" element={<Architecture />} />
           <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
           <Route path={ROUTES.AUTH.REGISTER} element={<Register />} />
           <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
           <Route path={ROUTES.AUTH.VERIFY_OTP} element={<VerifyOtp />} />
-
-          {/* Emergency View */}
           <Route path={ROUTES.PUBLIC.EMERGENCY_VIEW} element={<EmergencyView />} />
 
-          {/* Patient Role-based Routes */}
+          {/* PROTECTED ROUTES */}
           <Route element={<PatientRoute />}>
             <Route element={<DashboardLayout />}>
               <Route path={ROUTES.PATIENT.DASHBOARD} element={<PatientDashboard />} />
@@ -92,7 +112,6 @@ export default function AppRoutes() {
             </Route>
           </Route>
 
-          {/* Doctor Role-based Routes */}
           <Route element={<DoctorRoute />}>
             <Route element={<DashboardLayout />}>
               <Route path={ROUTES.DOCTOR.DASHBOARD} element={<DoctorDashboard />} />
@@ -104,10 +123,10 @@ export default function AppRoutes() {
               <Route path={ROUTES.DOCTOR.PROFILE} element={<DoctorProfile />} />
               <Route path={ROUTES.DOCTOR.AI_TRIAGE} element={<AITriage />} />
               <Route path={ROUTES.DOCTOR.NOTIFICATIONS} element={<DoctorNotifications />} />
+              <Route path={ROUTES.DOCTOR.SETTINGS} element={<DoctorSettings />} />
             </Route>
           </Route>
 
-          {/* Admin Role-based Routes */}
           <Route element={<AdminRoute />}>
             <Route element={<DashboardLayout />}>
               <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
@@ -116,11 +135,12 @@ export default function AppRoutes() {
               <Route path={ROUTES.ADMIN.VERIFY_DOCTORS} element={<VerifyDoctors />} />
               <Route path={ROUTES.ADMIN.ANALYTICS} element={<Analytics />} />
               <Route path={ROUTES.ADMIN.LOGS} element={<SystemLogs />} />
-              <Route path={ROUTES.ADMIN.NOTIFICATIONS} element={<AdminNotifications />} /> {/* 🌟 ADDED ADMIN NOTIFICATIONS */}
+              <Route path={ROUTES.ADMIN.PROFILE} element={<AdminProfile />} />
+              <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettings />} />
+              <Route path={ROUTES.ADMIN.NOTIFICATIONS} element={<AdminNotifications />} />
             </Route>
           </Route>
 
-          {/* Wildcard redirects */}
           <Route path={ROUTES.PUBLIC.NOT_FOUND} element={<NotFound />} />
           <Route path="*" element={<Navigate to={ROUTES.PUBLIC.NOT_FOUND} replace />} />
         </Routes>

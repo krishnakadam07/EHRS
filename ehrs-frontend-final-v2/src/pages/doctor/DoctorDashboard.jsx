@@ -6,6 +6,7 @@ import useAuth from '../../hooks/useAuth';
 import { ROUTES } from '../../routes/routeConstants';
 import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/common/Button';
+import { doctorService } from '../../services/doctorService';
 
 export default function DoctorDashboard() {
     const { currentUser } = useAuth();
@@ -19,27 +20,38 @@ export default function DoctorDashboard() {
         loading: true
     });
 
+    const [doctorName, setDoctorName] = useState('Doctor');
+
+    // Make the greeting dynamic based on time of day!
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Good Morning";
+        if (hour < 18) return "Good Afternoon";
+        return "Good Evening";
+    };
+
     // 🌟 FETCH REAL-TIME DATA FROM SPRING BOOT
     useEffect(() => {
-        if (!currentUser?.email) return;
-
         const fetchRealTimeStats = async () => {
             try {
-                // Connect to the DoctorController endpoints we built
-                const token = localStorage.getItem('token');
-                const headers = {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                };
-
-                // Fetch both logs and prescriptions simultaneously for speed
-                const [logsRes, rxRes] = await Promise.all([
-                    fetch(`http://localhost:8081/api/doctors/access-logs/${currentUser.email}`, { headers }),
-                    fetch(`http://localhost:8081/api/doctors/history/${currentUser.email}`, { headers })
+                // Fetch logs, prescriptions, AND doctor profile concurrently using the official service!
+                const [logs, prescriptions, profile] = await Promise.all([
+                    doctorService.getMyAccessLogs(currentUser.email).catch(() => []),
+                    doctorService.getIssuedPrescriptions(currentUser.email).catch(() => []),
+                    doctorService.getDoctorProfile(currentUser.email).catch(() => null)
                 ]);
 
-                const logs = logsRes.ok ? await logsRes.json() : [];
-                const prescriptions = rxRes.ok ? await rxRes.json() : [];
+                // Set the real Doctor Name from the database!
+                if (profile && profile.fullName) {
+                    // Capitalize first letter of each word to fix "Dr. doctor" -> "Dr. Doctor"
+                    const formattedName = profile.fullName.replace(/\b\w/g, l => l.toUpperCase());
+                    setDoctorName(formattedName);
+                } else if (currentUser?.email) {
+                    // Fallback to email prefix if name isn't set yet, properly capitalized
+                    const prefix = currentUser.email.split('@')[0];
+                    const capitalizedPrefix = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+                    setDoctorName("Dr. " + capitalizedPrefix);
+                }
 
                 // 1. Calculate Scans Today (matching today's date in the timestamp)
                 const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
@@ -61,7 +73,9 @@ export default function DoctorDashboard() {
             }
         };
 
-        fetchRealTimeStats();
+        if (currentUser?.email) {
+            fetchRealTimeStats();
+        }
     }, [currentUser]);
 
     const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -69,7 +83,11 @@ export default function DoctorDashboard() {
 
     return (
         <div className="flex flex-col gap-6 pb-12">
-            <PageHeader title={`Welcome, Dr. ${currentUser?.name?.split(' ')[1] || 'Doctor'}`} subtitle="Manage your patients, scan medical IDs, and review access logs." />
+            {/* 🌟 FIX: Dynamic time-based greeting and real database name! */}
+            <PageHeader
+                title={`${getGreeting()}, ${doctorName.startsWith('Dr.') ? doctorName : 'Dr. ' + doctorName}`}
+                subtitle="Manage your patients, scan medical IDs, and review access logs."
+            />
 
             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-6">
 
@@ -146,12 +164,20 @@ function MetricCard({ title, value, subtitle, icon, color, bgColor }) {
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col gap-3">
             <div className="flex justify-between items-start">
                 <span className="text-sm font-bold text-slate-500">{title}</span>
-                <div className={`w-12 h-12 rounded-xl ${bgColor} ${color} flex items-center justify-center shrink-0`}>{React.cloneElement(icon, { className: 'w-6 h-6' })}</div>
+                <div className={`w-12 h-12 rounded-xl ${bgColor} ${color} flex items-center justify-center shrink-0`}>
+                    {React.cloneElement(icon, { className: 'w-6 h-6' })}
+                </div>
             </div>
             <div className="flex flex-col mt-2">
-                <span className="text-4xl font-black text-slate-800">{value}</span>
+                {/* 🌟 PREMIUM SKELETON LOADER FOR DASHBOARD METRICS */}
+                {value === "..." ? (
+                    <div className="h-10 w-24 bg-slate-200 rounded-lg animate-pulse mb-1 mt-1"></div>
+                ) : (
+                    <span className="text-4xl font-black text-slate-800">{value}</span>
+                )}
                 <span className="text-xs font-semibold text-slate-400 mt-1">{subtitle}</span>
             </div>
         </div>
     );
+
 }

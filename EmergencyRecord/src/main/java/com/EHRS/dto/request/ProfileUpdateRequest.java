@@ -9,6 +9,8 @@ public class ProfileUpdateRequest {
     private String dob;
     private String gender;
     private String bloodGroup;
+    private String height; // 🌟 ADDED
+    private String weight; // 🌟 ADDED
     private List<String> allergies;
     private List<String> chronicConditions;
     private List<ContactDto> emergencyContacts;
